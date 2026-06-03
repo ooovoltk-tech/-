@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -15,7 +15,7 @@
   <!-- Подключаем Babel, чтобы браузер понимал JSX-синтаксис -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <style> type="text/babel
+  <style>
     body { font-family: 'Inter', sans-serif; }
     /* Скрываем скроллбар для красоты */
     ::-webkit-scrollbar { width: 8px; }
@@ -31,9 +31,9 @@
 
   <!-- Пишем логику React внутри тега script с типом text/babel -->
   <script type="text/babel">
-    //    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo, useEffect } = React;
 
-    //    const SearchIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+    const SearchIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
     const FilterIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
     const BriefcaseIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>;
     const MapPinIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
@@ -44,7 +44,7 @@
     const CheckIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>;
     const ExternalLinkIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
 
-    //    const mockJobs = [
+    const mockJobs = [
       {
         id: 1,
         title: 'Senior Frontend Developer (React)',
@@ -99,7 +99,7 @@
       }
     ];
 
-    //    const JobModal = ({ job, onClose }) => {
+    const JobModal = ({ job, onClose }) => {
       const [activeTab, setActiveTab] = useState('description');
       
       if (!job) return null;
@@ -113,6 +113,7 @@
 
             <div className="p-6 md:p-8">
               <div className="flex items-start gap-4 mb-6">
+                {/* Строго заданные стили для логотипа, чтобы он не растягивался */}
                 <div style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px', overflow: 'hidden' }} className="rounded-xl shadow-sm border border-gray-100 flex-shrink-0">
                    <img src={job.logo} alt={job.company} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
@@ -148,12 +149,12 @@
                 <div className="space-y-4 mb-8">
                   <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-100">
                     <div className="flex items-center gap-2 mb-3"><CheckIcon size={20} className="text-emerald-600" /><h4 className="font-bold text-gray-900">Выжимка от ИИ</h4></div>
-                    <ul className="list-disc list-inside text-gray-700 space-y-1 text-sm ml-2"><li>Хорошая зарплата</li><li>Современный стек</li></ul>
+                    <ul className="list-disc list-inside text-gray-700 space-y-1 text-sm ml-2"><li>Хорошая зарплата в рынке</li><li>Современный стек технологий</li></ul>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 mt-4">
                     <h4 className="font-bold text-gray-900 mb-2">Черновик сопроводительного письма:</h4>
                     <div className="bg-white p-4 rounded-lg border border-gray-200 text-sm text-gray-600 font-mono whitespace-pre-line leading-relaxed">
-                      {`Здравствуйте!\n\nМеня заинтересовала позиция "${job.title}". Я имею опыт работы с ${job.tags.join(', ')}.\n\nС уважением, [Ваше Имя]`}
+                      {`Здравствуйте!\n\nМеня заинтересовала позиция "${job.title}". Я имею опыт работы с ${job.tags.join(', ')}.\n\nБуду рад(а) ответить на вопросы на интервью.\n\nС уважением, [Ваше Имя]`}
                     </div>
                   </div>
                 </div>
@@ -169,9 +170,10 @@
       );
     };
 
-    //    const JobCard = ({ job, onClick }) => (
+    const JobCard = ({ job, onClick }) => (
       <div onClick={() => onClick(job)} className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all cursor-pointer group flex flex-col sm:flex-row gap-5">
         <div className="flex-shrink-0 hidden sm:block">
+          {/* Строго заданные стили для логотипа в карточке */}
           <div style={{ width: '56px', height: '56px', minWidth: '56px', minHeight: '56px', overflow: 'hidden' }} className="rounded-xl border border-gray-100">
              <img src={job.logo} alt={job.company} style={{ width: '100%', height: '100%', objectFit: 'cover' }} className="group-hover:scale-105 transition-transform" />
           </div>
@@ -196,7 +198,7 @@
       </div>
     );
 
-    //    const EmployerPage = () => (
+    const EmployerPage = () => (
       <div className="max-w-2xl mx-auto py-8 px-4">
         <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Разместить вакансию</h2>
@@ -212,7 +214,7 @@
       </div>
     );
 
-    //    const AuthPage = ({ onComplete }) => {
+    const AuthPage = ({ onComplete }) => {
       const [isLogin, setIsLogin] = useState(false);
       return (
         <div className="max-w-md mx-auto py-12 px-4">
@@ -233,7 +235,7 @@
       );
     };
 
-    //    const App = () => {
+    const App = () => {
       const [activeTab, setActiveTab] = useState('vacancies');
       const [searchTerm, setSearchTerm] = useState('');
       const [selectedSource, setSelectedSource] = useState('All');
@@ -317,7 +319,7 @@
       );
     };
 
-    //    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
 </body>
