@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
-// Используем встроенные SVG вместо внешних библиотек для 100% стабильности
+// Иконки с жестко заданными размерами без кавычек
 const SearchIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
 const FilterIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
 const BriefcaseIcon = ({ size = 20, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>;
@@ -63,26 +63,13 @@ const mockJobs = [
     postedAt: 'Вчера',
     description: 'Нужно собрать красивый и конверсионный лендинг на Webflow по готовому дизайну из Figma. Важно сделать качественную адаптивную верстку и настроить базовые анимации появления.',
     tags: ['Webflow', 'Figma', 'Landing']
-  },
-  {
-    id: 5,
-    title: 'Копирайтер в IT-блог',
-    company: 'Digital Media',
-    logo: 'https://placehold.co/100x100/4f46e5/ffffff?text=DM',
-    location: 'Удаленка',
-    salary: 'Сдельная',
-    type: 'Фриланс',
-    source: 'Telegram',
-    postedAt: 'Сегодня',
-    description: 'Нужен автор для написания статей в корпоративный блог IT-компании. Темы: информационная безопасность, облачные технологии, разработка. Требуется умение писать сложные вещи простым языком.',
-    tags: ['Copywriting', 'IT', 'Content']
   }
 ];
 
 const JobModal = ({ job, onClose }) => {
   const [activeTab, setActiveTab] = useState('description');
   
-  if (!job) return null; // Защита от ошибок, если вакансия не выбрана
+  if (!job) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -96,7 +83,16 @@ const JobModal = ({ job, onClose }) => {
 
         <div className="p-6 md:p-8">
           <div className="flex items-start gap-4 mb-6">
-            <img src={job.logo} alt={job.company} className="w-16 h-16 rounded-xl object-cover shadow-sm border border-gray-100" />
+            {/* ЖЕСТКИЕ СТИЛИ РАЗМЕРА КАРТИНКИ: чтобы не растягивалась */}
+            <div style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px', overflow: 'hidden' }} className="rounded-xl shadow-sm border border-gray-100 flex-shrink-0">
+               <img 
+                 src={job.logo} 
+                 alt={job.company} 
+                 width={64} 
+                 height={64} 
+                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+               />
+            </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-1">{job.title}</h2>
               <p className="text-lg text-emerald-600 font-medium mb-2">{job.company}</p>
@@ -181,7 +177,17 @@ const JobCard = ({ job, onClick }) => {
       className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all cursor-pointer group flex flex-col sm:flex-row gap-5"
     >
       <div className="flex-shrink-0 hidden sm:block">
-        <img src={job.logo} alt={job.company} className="w-14 h-14 rounded-xl object-cover border border-gray-100 group-hover:scale-105 transition-transform" />
+        {/* ЖЕСТКИЕ СТИЛИ РАЗМЕРА КАРТИНКИ: защита от поломки верстки */}
+        <div style={{ width: '56px', height: '56px', minWidth: '56px', minHeight: '56px', overflow: 'hidden' }} className="rounded-xl border border-gray-100">
+           <img 
+             src={job.logo} 
+             alt={job.company} 
+             width={56} 
+             height={56} 
+             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+             className="group-hover:scale-105 transition-transform" 
+           />
+        </div>
       </div>
       
       <div className="flex-grow">
@@ -218,28 +224,14 @@ const EmployerPage = () => (
   <div className="max-w-2xl mx-auto py-8 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
     <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
       <h2 className="text-3xl font-bold text-gray-900 mb-2">Разместить вакансию</h2>
-      <p className="text-gray-500 mb-8">Найдите идеального кандидата среди тысяч специалистов.</p>
+      <p className="text-gray-500 mb-8">Найдите идеального кандидата.</p>
       
       <form className="space-y-5" onSubmit={e => e.preventDefault()}>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">Должность</label>
-          <input type="text" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="Frontend Developer..." />
+          <input type="text" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none" placeholder="Frontend Developer..." />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Компания</label>
-            <input type="text" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="Название" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Зарплата</label>
-            <input type="text" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="от 150 000 ₽" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Описание</label>
-          <textarea rows="4" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none resize-none" placeholder="Опишите задачи и требования..."></textarea>
-        </div>
-        <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg mt-2">
+        <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md mt-2">
           Опубликовать 
         </button>
       </form>
@@ -256,52 +248,22 @@ const AuthPage = ({ onComplete }) => {
         <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
           {isLogin ? 'Вход' : 'Регистрация'}
         </h2>
-
         <form className="space-y-4" onSubmit={e => { e.preventDefault(); onComplete('vacancies'); }}>
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Имя</label>
-              <input type="text" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="Иван Иванов" required />
-            </div>
-          )}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
-            <input type="email" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="mail@example.com" required />
+            <input type="email" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" required />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Пароль</label>
-            <input type="password" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none" placeholder="••••••••" required />
+            <input type="password" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" required />
           </div>
-
-          {!isLogin && (
-            <div className="pt-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Я хочу:</label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className="cursor-pointer">
-                  <input type="radio" name="role" className="peer sr-only" defaultChecked />
-                  <div className="text-center px-3 py-2.5 rounded-xl border-2 border-gray-100 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 text-gray-500 font-medium transition-all hover:bg-gray-50">
-                    Искать работу
-                  </div>
-                </label>
-                <label className="cursor-pointer">
-                  <input type="radio" name="role" className="peer sr-only" />
-                  <div className="text-center px-3 py-2.5 rounded-xl border-2 border-gray-100 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 text-gray-500 font-medium transition-all hover:bg-gray-50">
-                    Искать людей
-                  </div>
-                </label>
-              </div>
-            </div>
-          )}
-
           <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md mt-6">
             {isLogin ? 'Войти' : 'Создать аккаунт'}
           </button>
         </form>
-
         <div className="mt-6 text-center text-sm text-gray-600">
-          {isLogin ? 'Нет аккаунта? ' : 'Уже есть аккаунт? '}
           <button onClick={() => setIsLogin(!isLogin)} className="text-emerald-600 font-bold hover:underline">
-            {isLogin ? 'Зарегистрироваться' : 'Войти'}
+            {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
           </button>
         </div>
       </div>
@@ -310,25 +272,21 @@ const AuthPage = ({ onComplete }) => {
 };
 
 const App = () => {
-  // Состояния для управления вкладками и фильтрами
   const [activeTab, setActiveTab] = useState('vacancies');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSource, setSelectedSource] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Сброс фильтров при смене вкладки
   useEffect(() => {
     setSearchTerm('');
     setSelectedSource('All');
     setSelectedType('All');
   }, [activeTab]);
 
-  // Уникальные значения для фильтров
   const sources = ['All', ...new Set(mockJobs.map(job => job.source))];
   const types = ['All', ...new Set(mockJobs.map(job => job.type))];
 
-  // Логика фильтрации
   const filteredJobs = useMemo(() => {
     let baseJobs = mockJobs;
     if (activeTab === 'freelance') {
@@ -337,8 +295,7 @@ const App = () => {
 
     return baseJobs.filter(job => {
       const matchSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          job.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                          job.company.toLowerCase().includes(searchTerm.toLowerCase());
       const matchSource = selectedSource === 'All' || job.source === selectedSource;
       const matchType = selectedType === 'All' || job.type === selectedType;
       
@@ -349,11 +306,9 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900">
       
-      {/* Шапка (Header) */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Логотип */}
             <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('vacancies')}>
               <div className="bg-emerald-600 text-white p-2 rounded-xl mr-3 shadow-md shadow-emerald-200">
                 <BriefcaseIcon size={22} />
@@ -363,7 +318,6 @@ const App = () => {
               </h1>
             </div>
             
-            {/* Меню навигации */}
             <nav className="hidden md:flex space-x-8 h-full">
               {['vacancies', 'freelance', 'employers'].map((tabKey) => {
                 const labels = { vacancies: 'Вакансии', freelance: 'Фриланс', employers: 'Работодателям' };
@@ -379,7 +333,6 @@ const App = () => {
               })}
             </nav>
 
-            {/* Кнопки входа и размещения */}
             <div className="flex items-center space-x-3">
               <button 
                 onClick={() => setActiveTab('auth')}
@@ -387,42 +340,27 @@ const App = () => {
               >
                 Вход / Регистрация
               </button>
-              <button 
-                onClick={() => setActiveTab('employers')}
-                className="text-sm font-bold bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-gray-800 transition-all shadow-md"
-              >
-                Разместить
-              </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Основной контент */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Маршрутизация страниц */}
         {activeTab === 'auth' ? (
           <AuthPage onComplete={setActiveTab} />
         ) : activeTab === 'employers' ? (
           <EmployerPage />
         ) : (
           <div className="animate-in fade-in duration-500">
-            {/* Заголовок страницы */}
             <div className="mb-8">
               <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
                 {activeTab === 'freelance' ? 'Фриланс и проектная работа' : 'Найди работу мечты'}
               </h2>
-              <p className="mt-3 text-lg text-gray-500 max-w-2xl">
-                {activeTab === 'freelance' 
-                  ? 'Свежие заказы с бирж (Upwork, Хабр Фриланс) и Telegram-каналов.' 
-                  : 'Собираем лучшие вакансии с hh.ru, Telegram и зарубежных площадок в одном месте.'}
-              </p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
               
-              {/* Сайдбар с фильтрами */}
               <aside className="w-full lg:w-1/4 flex-shrink-0">
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm sticky top-24">
                   <div className="flex items-center mb-5 text-gray-900 font-bold text-lg border-b border-gray-100 pb-4">
@@ -430,7 +368,6 @@ const App = () => {
                     Фильтры
                   </div>
                   
-                  {/* Фильтр: Источник */}
                   <div className="mb-6">
                     <h4 className="font-semibold text-sm text-gray-900 mb-3 uppercase tracking-wider">Источник</h4>
                     <div className="space-y-3">
@@ -440,74 +377,30 @@ const App = () => {
                             type="radio" name="source" value={source}
                             checked={selectedSource === source}
                             onChange={(e) => setSelectedSource(e.target.value)}
-                            className="w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                            className="w-4 h-4 text-emerald-600 border-gray-300"
                           />
-                          <span className="ml-3 text-sm font-medium text-gray-600 group-hover:text-gray-900">{source === 'All' ? 'Все источники' : source}</span>
+                          <span className="ml-3 text-sm font-medium text-gray-600">{source === 'All' ? 'Все источники' : source}</span>
                         </label>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* Фильтр: Тип занятости (Скрыт на вкладке фриланса) */}
-                  {activeTab !== 'freelance' && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold text-sm text-gray-900 mb-3 uppercase tracking-wider">Тип занятости</h4>
-                      <div className="space-y-3">
-                        {types.map(type => (
-                          <label key={type} className="flex items-center cursor-pointer group">
-                            <input 
-                              type="radio" name="type" value={type}
-                              checked={selectedType === type}
-                              onChange={(e) => setSelectedType(e.target.value)}
-                              className="w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"
-                            />
-                            <span className="ml-3 text-sm font-medium text-gray-600 group-hover:text-gray-900">{type === 'All' ? 'Любой тип' : type}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Рекламный блок */}
-                  <div className="mt-8 p-5 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-100 relative overflow-hidden group cursor-pointer">
-                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-2">Реклама</p>
-                    <h4 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">Курс "Frontend с нуля"</h4>
-                    <p className="text-xs text-gray-600 mb-4">Освойте профессию за 6 месяцев. Гарантия трудоустройства.</p>
-                    <div className="w-full bg-white text-indigo-600 border border-indigo-200 text-sm font-bold py-2 rounded-lg text-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                      Узнать подробнее
                     </div>
                   </div>
                 </div>
               </aside>
 
-              {/* Лента вакансий */}
               <div className="w-full lg:w-3/4">
-                
-                {/* Строка поиска */}
                 <div className="relative mb-6">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <SearchIcon className="h-5 w-5 text-gray-400" />
+                    <SearchIcon size={20} className="text-gray-400" />
                   </div>
                   <input
                     type="text"
-                    placeholder="Поиск по должности, навыку (React) или компании..."
+                    placeholder="Поиск по должности или компании..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-base shadow-sm transition-shadow"
+                    className="block w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 sm:text-base shadow-sm"
                   />
                 </div>
 
-                {/* Заголовок результатов */}
-                <div className="flex justify-between items-center mb-4 px-1">
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Найдено: <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{filteredJobs.length}</span>
-                  </h3>
-                  <div className="text-sm font-medium text-gray-500 flex items-center cursor-pointer hover:text-gray-900">
-                    Сортировка: <span className="text-gray-900 ml-1">По свежести</span>
-                  </div>
-                </div>
-
-                {/* Список карточек */}
                 {filteredJobs.length > 0 ? (
                   <div className="space-y-4">
                     {filteredJobs.map(job => (
@@ -516,17 +409,7 @@ const App = () => {
                   </div>
                 ) : (
                   <div className="text-center py-20 bg-white border border-gray-200 rounded-2xl shadow-sm">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4 border border-gray-100">
-                      <SearchIcon size={28} className="text-gray-300" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Ничего не найдено</h3>
-                    <p className="text-gray-500 mb-6 max-w-sm mx-auto">Попробуйте изменить параметры поиска или сбросить фильтры.</p>
-                    <button 
-                      onClick={() => {setSearchTerm(''); setSelectedSource('All'); setSelectedType('All');}}
-                      className="px-6 py-2.5 bg-emerald-50 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100 transition-colors"
-                    >
-                      Сбросить фильтры
-                    </button>
+                     <h3 className="text-xl font-bold text-gray-900 mb-2">Ничего не найдено</h3>
                   </div>
                 )}
               </div>
@@ -535,8 +418,9 @@ const App = () => {
         )}
       </main>
 
-      {/* Вызов модального окна */}
       <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
     </div>
   );
 };
+
+export default App;
