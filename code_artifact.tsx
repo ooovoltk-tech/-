@@ -1,0 +1,608 @@
+import React, { useState, useMemo, useEffect } from 'react';
+
+// Иконки (встроенные SVG для стабильной работы)
+const Search = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+const Filter = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
+const Briefcase = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>;
+const MapPin = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+const DollarSign = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>;
+const Clock = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+const ExternalLink = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>;
+const Sparkles = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>;
+const CheckCircle = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
+const AlertTriangle = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
+const Cpu = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="16" x="4" y="4" rx="2"></rect><rect width="6" height="6" x="9" y="9" rx="1"></rect><path d="M15 2v2"></path><path d="M15 20v2"></path><path d="M2 15h2"></path><path d="M2 9h2"></path><path d="M20 15h2"></path><path d="M20 9h2"></path><path d="M9 2v2"></path><path d="M9 20v2"></path></svg>;
+
+const mockJobs = [
+  {
+    id: 1,
+    title: 'Senior Frontend Developer (React)',
+    company: 'TechCorp',
+    logo: 'https://placehold.co/100x100/0ea5e9/ffffff?text=TC',
+    location: 'Remote (Worldwide)',
+    salary: '$4000 - $6000',
+    type: 'Full-time',
+    source: 'hh.ru',
+    postedAt: '2 часа назад',
+    description: 'Мы ищем опытного Frontend разработчика для развития нашей основной SaaS-платформы. Вы будете работать в кросс-функциональной команде. Требования: Отличное знание React, TypeScript, стейт-менеджеров (Zustand/Redux), опыт оптимизации производительности. Плюсом будет опыт работы с WebGL.',
+    tags: ['React', 'TypeScript', 'SaaS']
+  },
+  {
+    id: 2,
+    title: 'Python Backend Engineer',
+    company: 'Fintech Solutions',
+    logo: 'https://placehold.co/100x100/10b981/ffffff?text=FS',
+    location: 'Москва / Гибрид',
+    salary: 'от 300 000 ₽',
+    type: 'Full-time',
+    source: 'Telegram',
+    postedAt: '5 часов назад',
+    description: 'Разработка микросервисов для высоконагруженной финансовой системы. Стек: Python 3.10+, FastAPI, PostgreSQL, Redis, Kafka. Обязателен опыт работы с распределенными системами и понимание принципов ACID.',
+    tags: ['Python', 'FastAPI', 'Microservices']
+  },
+  {
+    id: 3,
+    title: 'Product Designer (UI/UX)',
+    company: 'CreativeApp',
+    logo: 'https://placehold.co/100x100/f43f5e/ffffff?text=CA',
+    location: 'Relocation to Cyprus',
+    salary: '€3500 - €5000',
+    type: 'Full-time',
+    source: 'LinkedIn',
+    postedAt: '1 день назад',
+    description: 'Ищем дизайнера с сильным портфолио в продуктовом дизайне. Задачи: проектирование интерфейсов мобильного приложения (iOS/Android), проведение пользовательских интервью, работа с дизайн-системой в Figma.',
+    tags: ['Figma', 'UI/UX', 'Mobile']
+  },
+  {
+    id: 4,
+    title: 'DevOps Engineer',
+    company: 'CloudSystems',
+    logo: 'https://placehold.co/100x100/8b5cf6/ffffff?text=CS',
+    location: 'Remote',
+    salary: '$3000 - $4500',
+    type: 'Contract',
+    source: 'Upwork',
+    postedAt: '2 дня назад',
+    description: 'Настройка CI/CD пайплайнов (GitLab CI), управление инфраструктурой как кодом (Terraform, Ansible), поддержка кластеров Kubernetes (EKS).',
+    tags: ['Kubernetes', 'Terraform', 'AWS']
+  },
+  {
+    id: 5,
+    title: 'Middle QA Automation (Java)',
+    company: 'Bank "Future"',
+    logo: 'https://placehold.co/100x100/f59e0b/ffffff?text=BF',
+    location: 'Санкт-Петербург',
+    salary: 'до 250 000 ₽',
+    type: 'Full-time',
+    source: 'hh.ru',
+    postedAt: '3 дня назад',
+    description: 'Автоматизация тестирования backend и frontend частей банковского приложения. Написание автотестов на Java + Selenide + RestAssured. Интеграция тестов в CI/CD.',
+    tags: ['Java', 'QA Automation', 'Selenide']
+  },
+  {
+    id: 6,
+    title: 'Копирайтер / Редактор IT текстов',
+    company: 'Freelance Agency',
+    logo: 'https://placehold.co/100x100/4f46e5/ffffff?text=FR',
+    location: 'Remote',
+    salary: 'Сдельная',
+    type: 'Freelance',
+    source: 'Telegram',
+    postedAt: 'Вчера',
+    description: 'Нужен автор для написания статей в корпоративный блог IT-компании. Темы: информационная безопасность, облачные технологии, разработка. Требуется умение писать сложные вещи простым языком.',
+    tags: ['Copywriting', 'IT', 'Content']
+  },
+  {
+    id: 7,
+    title: 'React Native Developer',
+    company: 'AppStudio',
+    logo: 'https://placehold.co/100x100/8b5cf6/ffffff?text=AS',
+    location: 'Remote',
+    salary: '$20 / час',
+    type: 'Freelance',
+    source: 'Upwork',
+    postedAt: 'Сегодня',
+    description: 'Проектная работа на 2 месяца. Нужно доработать существующее приложение на React Native (iOS/Android). Интеграция с REST API, исправление багов в UI.',
+    tags: ['React Native', 'Mobile', 'Freelance']
+  }
+];
+
+const JobModal = ({ job, onClose }) => {
+  const [activeTab, setActiveTab] = useState('description');
+  
+  if (!job) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative shadow-2xl" onClick={e => e.stopPropagation()}>
+        <button 
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <div className="p-6 md:p-8">
+          <div className="flex items-start gap-4 mb-6">
+            <img src={job.logo} alt={job.company} className="w-16 h-16 rounded-xl object-cover shadow-sm border border-gray-100" />
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 leading-tight mb-1">{job.title}</h2>
+              <p className="text-lg text-emerald-600 font-medium mb-2">{job.company}</p>
+              
+              <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+                <span className="flex items-center"><DollarSign size={16} className="mr-1 text-gray-400" /> {job.salary}</span>
+                <span className="flex items-center"><MapPin size={16} className="mr-1 text-gray-400" /> {job.location}</span>
+                <span className="flex items-center"><Briefcase size={16} className="mr-1 text-gray-400" /> {job.type}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex space-x-1 bg-gray-100/50 p-1 rounded-xl mb-6">
+            <button 
+              onClick={() => setActiveTab('description')}
+              className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all ${activeTab === 'description' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Описание вакансии
+            </button>
+            <button 
+              onClick={() => setActiveTab('ai')}
+              className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'ai' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-600 hover:bg-indigo-50'}`}
+            >
+              <Sparkles size={16} /> AI-ассистент
+            </button>
+          </div>
+
+          {activeTab === 'description' ? (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">О вакансии</h3>
+              <p className="text-gray-700 leading-relaxed mb-6 whitespace-pre-line">
+                {job.description}
+              </p>
+              
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Теги</h3>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {job.tags.map(tag => (
+                  <span key={tag} className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium border border-emerald-100">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 mb-8">
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle size={20} className="text-emerald-500" />
+                  <h4 className="font-semibold text-gray-900">AI Анализ: Плюсы</h4>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 space-y-1 text-sm ml-2">
+                  <li>Отличная зарплатная вилка для рынка</li>
+                  <li>Возможность полностью удаленной работы</li>
+                  <li>Современный стек технологий ({job.tags.join(', ')})</li>
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-5 border border-orange-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle size={20} className="text-orange-500" />
+                  <h4 className="font-semibold text-gray-900">Возможные риски</h4>
+                </div>
+                <ul className="list-disc list-inside text-gray-700 space-y-1 text-sm ml-2">
+                  <li>Возможны переработки (упоминается "высокая нагрузка")</li>
+                  <li>Требуется высокий уровень самостоятельности</li>
+                </ul>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Cpu size={20} className="text-indigo-500" />
+                    <h4 className="font-semibold text-gray-900">Генератор сопроводительного письма</h4>
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200 text-sm text-gray-600 font-mono whitespace-pre-line">
+                  {`Здравствуйте!\n\nМеня очень заинтересовала вакансия "${job.title}" в компании ${job.company}. У меня есть релевантный опыт работы с ${job.tags.join(', ')}, и я уверен(а), что смогу быстро влиться в проект и начать приносить пользу.\n\nБуду рад(а) обсудить детали на интервью.\n\nС уважением,\n[Ваше Имя]`}
+                </div>
+                <button className="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                  Скопировать текст
+                </button>
+              </div>
+            </div>
+          )}
+
+        </div>
+        
+        <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-2xl sticky bottom-0 z-10">
+          <button 
+            onClick={onClose}
+            className="px-5 py-2.5 rounded-lg font-medium text-gray-600 hover:bg-gray-200 transition-colors"
+          >
+            Закрыть
+          </button>
+          <button className="px-5 py-2.5 rounded-lg font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm flex items-center">
+            Откликнуться
+            <ExternalLink size={18} className="ml-2" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const JobCard = ({ job, onClick }) => {
+  return (
+    <div 
+      onClick={() => onClick(job)}
+      className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col sm:flex-row gap-5"
+    >
+      <div className="flex-shrink-0 hidden sm:block">
+        <img src={job.logo} alt={job.company} className="w-14 h-14 rounded-lg object-cover border border-gray-100 group-hover:scale-105 transition-transform" />
+      </div>
+      
+      <div className="flex-grow">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">{job.title}</h3>
+            <p className="text-sm text-gray-500 mt-1">{job.company}</p>
+          </div>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {job.source}
+          </span>
+        </div>
+        
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex items-center">
+            <DollarSign size={16} className="mr-1.5 text-gray-400" />
+            <span className="font-medium text-gray-900">{job.salary}</span>
+          </div>
+          <div className="flex items-center">
+            <MapPin size={16} className="mr-1.5 text-gray-400" />
+            {job.location}
+          </div>
+          <div className="flex items-center">
+            <Briefcase size={16} className="mr-1.5 text-gray-400" />
+            {job.type}
+          </div>
+          <div className="flex items-center">
+            <Clock size={16} className="mr-1.5 text-gray-400" />
+            {job.postedAt}
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {job.tags.map(tag => (
+            <span key={tag} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EmployerPage = () => (
+  <div className="max-w-3xl mx-auto py-12 px-4">
+    <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+      <h2 className="text-3xl font-bold text-gray-900 mb-2">Разместить вакансию</h2>
+      <p className="text-gray-600 mb-8">Найдите идеального кандидата среди тысяч специалистов.</p>
+      
+      <form className="space-y-6" onSubmit={e => e.preventDefault()}>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Название должности</label>
+          <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Например: Senior Frontend Developer" />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Компания</label>
+            <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Название компании" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Зарплатная вилка</label>
+            <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="от 100 000 ₽" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Описание и требования</label>
+          <textarea rows="5" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Опишите задачи, стек технологий и условия..."></textarea>
+        </div>
+
+        <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition-colors shadow-sm">
+          Опубликовать (Демо)
+        </button>
+      </form>
+    </div>
+  </div>
+);
+
+const AuthPage = ({ onComplete }) => {
+  const [isLogin, setIsLogin] = useState(false);
+
+  return (
+    <div className="max-w-md mx-auto py-12 px-4 transition-all duration-300">
+      <div className="bg-white rounded-3xl w-full p-8 shadow-sm border border-gray-200">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          {isLogin ? 'Вход в аккаунт' : 'Регистрация'}
+        </h2>
+
+        <form className="space-y-5" onSubmit={e => { e.preventDefault(); onComplete('vacancies'); }}>
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Имя и фамилия</label>
+              <input type="text" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-gray-50 focus:bg-white" placeholder="Иван Иванов" required />
+            </div>
+          )}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-gray-50 focus:bg-white" placeholder="ваша@почта.ru" required />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+            <input type="password" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-gray-50 focus:bg-white" placeholder="••••••••" required />
+          </div>
+
+          {!isLogin && (
+            <div className="pt-2">
+              <label className="block text-sm font-medium text-gray-700 mb-3">Выберите вашу роль:</label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="cursor-pointer">
+                  <input type="radio" name="role" className="peer sr-only" defaultChecked />
+                  <div className="text-center px-4 py-3 rounded-xl border-2 border-gray-100 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 text-gray-500 font-medium transition-all hover:border-gray-200">
+                    Кандидат
+                  </div>
+                </label>
+                <label className="cursor-pointer">
+                  <input type="radio" name="role" className="peer sr-only" />
+                  <div className="text-center px-4 py-3 rounded-xl border-2 border-gray-100 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 text-gray-500 font-medium transition-all hover:border-gray-200">
+                    Работодатель
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg mt-4">
+            {isLogin ? 'Войти в систему' : 'Создать аккаунт'}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center text-sm text-gray-600">
+          {isLogin ? 'Нет аккаунта? ' : 'Уже зарегистрированы? '}
+          <button 
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline transition-colors"
+          >
+            {isLogin ? 'Пройти регистрацию' : 'Войти'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState('vacancies');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSource, setSelectedSource] = useState('All');
+  const [selectedType, setSelectedType] = useState('All');
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  useEffect(() => {
+    setSearchTerm('');
+    setSelectedSource('All');
+    setSelectedType('All');
+  }, [activeTab]);
+
+  const sources = ['All', ...new Set(mockJobs.map(job => job.source))];
+  const types = ['All', ...new Set(mockJobs.map(job => job.type))];
+
+  const filteredJobs = useMemo(() => {
+    let baseJobs = mockJobs;
+    
+    if (activeTab === 'freelance') {
+      baseJobs = mockJobs.filter(job => job.type === 'Freelance');
+    }
+
+    return baseJobs.filter(job => {
+      const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            job.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSource = selectedSource === 'All' || job.source === selectedSource;
+      const matchesType = selectedType === 'All' || job.type === selectedType;
+      
+      return matchesSearch && matchesSource && matchesType;
+    });
+  }, [searchTerm, selectedSource, selectedType, activeTab]);
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('vacancies')}>
+              <div className="bg-emerald-600 text-white p-2 rounded-lg mr-3 shadow-sm">
+                <Briefcase size={24} />
+              </div>
+              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500">
+                JobAggregator
+              </h1>
+            </div>
+            
+            <nav className="hidden md:flex space-x-8">
+              <button 
+                onClick={() => setActiveTab('vacancies')} 
+                className={`font-medium px-1 py-5 transition-colors border-b-2 ${activeTab === 'vacancies' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+              >
+                Вакансии
+              </button>
+              <button 
+                onClick={() => setActiveTab('freelance')} 
+                className={`font-medium px-1 py-5 transition-colors border-b-2 ${activeTab === 'freelance' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+              >
+                Фриланс
+              </button>
+              <button 
+                onClick={() => setActiveTab('employers')} 
+                className={`font-medium px-1 py-5 transition-colors border-b-2 ${activeTab === 'employers' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+              >
+                Работодателям
+              </button>
+            </nav>
+
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setActiveTab('auth')}
+                className={`text-sm font-medium transition-colors hidden sm:block ${activeTab === 'auth' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
+              >
+                Регистрация / Вход
+              </button>
+              <button 
+                onClick={() => setActiveTab('employers')}
+                className="text-sm font-medium bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
+              >
+                Разместить
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'auth' ? (
+          <AuthPage onComplete={setActiveTab} />
+        ) : activeTab === 'employers' ? (
+          <EmployerPage />
+        ) : (
+          <>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+                {activeTab === 'freelance' ? 'Фриланс и проектная работа' : 'Найди работу мечты'}
+              </h2>
+              <p className="mt-2 text-lg text-gray-600">
+                {activeTab === 'freelance' 
+                  ? 'Свежие заказы с бирж и Telegram-каналов.' 
+                  : 'Собираем лучшие вакансии с hh.ru, Telegram и зарубежных площадок.'}
+              </p>
+            </div>
+
+            <div className="flex flex-col lg:flex-row gap-8">
+              <aside className="w-full lg:w-1/4 flex-shrink-0">
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm sticky top-24">
+                  <div className="flex items-center mb-4 text-gray-800 font-semibold text-lg">
+                    <Filter size={20} className="mr-2" />
+                    Фильтры
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h4 className="font-medium text-sm text-gray-900 mb-3">Источник</h4>
+                    <div className="space-y-2">
+                      {sources.map(source => (
+                        <label key={source} className="flex items-center cursor-pointer group">
+                          <input 
+                            type="radio" 
+                            name="source" 
+                            value={source}
+                            checked={selectedSource === source}
+                            onChange={(e) => setSelectedSource(e.target.value)}
+                            className="w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-900">{source === 'All' ? 'Все источники' : source}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {activeTab !== 'freelance' && (
+                    <div className="mb-6">
+                      <h4 className="font-medium text-sm text-gray-900 mb-3">Тип занятости</h4>
+                      <div className="space-y-2">
+                        {types.map(type => (
+                          <label key={type} className="flex items-center cursor-pointer group">
+                            <input 
+                              type="radio" 
+                              name="type" 
+                              value={type}
+                              checked={selectedType === type}
+                              onChange={(e) => setSelectedType(e.target.value)}
+                              className="w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500"
+                            />
+                            <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-900">{type === 'All' ? 'Любой тип' : type}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-8 p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg border border-indigo-100">
+                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Реклама</p>
+                    <h4 className="font-bold text-gray-800 mb-1">Курс "Профессия Frontend"</h4>
+                    <p className="text-sm text-gray-600 mb-3">Освойте профессию с нуля за 6 месяцев. Гарантия трудоустройства.</p>
+                    <button className="w-full bg-indigo-600 text-white text-sm font-medium py-2 rounded hover:bg-indigo-700 transition-colors">
+                      Узнать подробнее
+                    </button>
+                  </div>
+                </div>
+              </aside>
+
+              {}
+              <div className="w-full lg:w-3/4">
+                <div className="relative mb-6">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Должность, навык или компания..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-4 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm shadow-sm transition-shadow"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Найдено: <span className="text-emerald-600">{filteredJobs.length}</span>
+                  </h3>
+                  <div className="text-sm text-gray-500 flex items-center">
+                    Сортировка: <span className="font-medium text-gray-900 ml-1 cursor-pointer hover:underline">По дате добавления</span>
+                  </div>
+                </div>
+
+                {filteredJobs.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredJobs.map(job => (
+                      <JobCard key={job.id} job={job} onClick={setSelectedJob} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 bg-white border border-gray-200 rounded-xl">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                      <Search size={24} className="text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Ничего не найдено</h3>
+                    <p className="text-gray-500">Попробуйте изменить параметры поиска или фильтры.</p>
+                    <button 
+                      onClick={() => {setSearchTerm(''); setSelectedSource('All'); setSelectedType('All');}}
+                      className="mt-4 text-emerald-600 font-medium hover:text-emerald-700"
+                    >
+                      Сбросить все фильтры
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </main>
+
+      <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
+    </div>
+  );
+};
+
+export default App;
